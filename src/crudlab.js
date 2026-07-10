@@ -6,19 +6,16 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK14 : indexes before deleteMany ----
+    // ---- BLOCK 15: deleteMany ----
 
     // PREDICTION:
-    // I think the collection has the default _id index and the unique name index.
+    // i predict deleteMany({}) will remove all documents leaving the colection exmpty
 
-    const r13 = await db.collection("lab").indexes();
+    const r14 = await db.collection("lab").deleteMany({});
 
-    console.log("Indexes:", r13);
+    console.log("deleteMany:", r14);
 
-    // ACTUAL:Indexes: [
-   // { v: 2, key: { _id: 1 }, name: '_id_' },
-    //{ v: 2, key: { name: 1 }, name: 'name_1', unique: true }
-      ]
+    // ACTUAL:
 
     await mongoose.disconnect();
 
