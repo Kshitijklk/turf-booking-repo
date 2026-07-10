@@ -11,7 +11,7 @@ async function run() {
     const r3 = await db.collection('lab').findOne(
         {name: 'justin'});
     console.log('findOne:', r3);
-    // ACTUAL: 
+    // ACTUAL: findOne: { _id: new ObjectId('6a507ad0001aa2c874dee1b6'), name: 'justin', n: 2 }
 
 
 
