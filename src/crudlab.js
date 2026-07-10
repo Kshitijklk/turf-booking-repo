@@ -7,14 +7,14 @@ async function run() {
 
 
     // ---- BLOCK 9: updateOne without $set ---- 
-    // PREDICTION: it will update the document with name "justin" and set the field n to 10.
-    const r8 = await db.collection('lab').updateOne(
-        { name: "justin" }, { n: 10 }
+    // PREDICTION: it will execute the find order and return the document and then update the document
+    const r = await db.collection("lab").findOneAndUpdate(
+        { name: "justin" },
+        { $set: { n: 10 } }
     );
 
-
-    console.log('updateOne:', r8);
-    // ACTUAL: it threw an error: "MongoServerError: The update operation document must contain atomic operators."  
+    console.log("findOneAndUpdate:", r);
+    // ACTUAL: 
     await mongoose.disconnect();
 
 
