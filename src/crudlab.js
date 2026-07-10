@@ -6,18 +6,22 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK 10: returnDocument ----
-    // PREDICTION: { returnDocument: 'after' } will first update the document and then return the updated value
-    const r9 = await db.collection("lab").findOneAndUpdate(
-        { name: "justin" },
-        { $set: { n: 300 } },
-        { returnDocument: 'before' }
-    );
+    // ---- BLOCK 10 : insertMany ----
 
-    console.log("returnDocument:", r9);
-    // ACTUAL: returnDocument: { _id: new ObjectId('6a50806720e08eea7d262102'),   name: 'justin',  n: 20 }
+    // PREDICTION:
+    // I think three documents with status "temp" will be inserted.
+
+    const r10 = await db.collection("lab").insertMany([
+        { name: "A", status: "temp" },
+        { name: "B", status: "temp" },
+        { name: "C", status: "temp" }
+    ]);
+
+
+    console.log("insertMany:", r10);
+    // ACTUAL:
+
     await mongoose.disconnect();
-
 
 }
 run();
