@@ -25,7 +25,8 @@ async function run() {
 
     console.log(r3);
 
-    // ACTUAL:
+    // ACTUAL: ValidationError: Animal validation failed: legs:
+    //  Cast to Number failed for value "four" (type string) at path "legs"
 
 
     await mongoose.disconnect();
