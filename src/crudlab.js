@@ -9,7 +9,7 @@ async function run() {
     // ---- BLOCK 6: insertMany with one violation ---- 
     // PREDICTION: it will insert the first 2 documents, ignore the document that violates the unique
     // constraint, and then insert the last 2 documents. It will return an object with the number of inserted documents and the ids of the inserted documents.
-    const r5 = await db.collection('lab').insertMany([]
+    const r5 = await db.collection('lab').insertMany([
         { name: "maddie", n: 3 },
         { name: "travis", n: 4 },
         { name: "travis", n: 5 },
@@ -18,8 +18,8 @@ async function run() {
     
     ]);
     console.log('insertMany:', r5);
-    // ACTUAL:
-
+    // ACTUAL: instead of ignoring the violating document and continuing, 
+    // it only inserted the first 2 documents and then threw an error for the violating document. It did not insert the last 2 documents
 
 
     await mongoose.disconnect();
