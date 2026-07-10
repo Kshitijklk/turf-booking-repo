@@ -10,8 +10,8 @@ async function run() {
     // PREDICTION: { returnDocument: 'after' } will first update the document and then return the updated value
     const r9 = await db.collection("lab").findOneAndUpdate(
         { name: "justin" },
-        { $set: { n: 20 } },
-        { returnDocument: 'after' }
+        { $set: { n: 300 } },
+        { returnDocument: 'before' }
     );
 
     console.log("returnDocument:", r9);
