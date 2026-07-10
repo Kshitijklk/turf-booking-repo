@@ -15,9 +15,21 @@ async function run() {
     console.log('insertOne:', r1);
     // ACTUAL: insertOne: {
     //acknowledged: true,
-      //  insertedId: new ObjectId('6a507ad0001aa2c874dee1b6')}
+    //  insertedId: new ObjectId('6a507ad0001aa2c874dee1b6')}
+
+    // ---- BLOCK 1: find() ----
+    // PREDICTION: the returned object conatains,
+    //  a unique ID, given name and n value
+    const r1 = await db.collection('lab')
+        .find(
+            { name: 'justin', });
+        .toarray();
+
+    console.log(result);
+    // ACTUAL: 
 
     await mongoose.disconnect();
 }
+
 
 run();
