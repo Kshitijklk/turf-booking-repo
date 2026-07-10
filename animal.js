@@ -12,20 +12,22 @@ async function run() {
 
     const Animal = mongoose.model("Animal", animalSchema);
 
-    // ---- BLOCK  ----
+    // ---- BLOCK 3----
 
     // PREDICTION:
-    // Mongoose using type casting will convert the string "4"
-    // into the Number 4 and save the document.
+    // "four" cannot be converted into a Number,
+    // so Mongoose should throw an error.
 
-    const r2 = await Animal.create({
-        name: "b",
-        legs: "4"
+    const r3 = await Animal.create({
+        name: "c",
+        legs: "four"
     });
 
-    console.log(r2);
+    console.log(r3);
 
-    // ACTUAL:{ name: 'b', legs: 4,_id: new ObjectId('6a50bd08b5252594d7168573'),__v: 0 }
+    // ACTUAL:
+
+
     await mongoose.disconnect();
 
 }
