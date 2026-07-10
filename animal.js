@@ -24,7 +24,11 @@ async function run() {
 
     console.log(r1);
 
-    // ACTUAL:
+    // ACTUAL:{
+    //name: 'a',
+    //  legs: 4,
+    //    _id: new ObjectId('6a50bbd4f70f106c515b1a75'),
+    //__v: 0
 
     await mongoose.disconnect();
 
