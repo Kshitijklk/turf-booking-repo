@@ -16,7 +16,7 @@ async function run() {
 
     // PREDICTION:
     // color is not in the schema.
-    // Mongoose should ignore it.
+    // Mongoose will ignore it.
 
     const r5 = await Animal.create({
         name: "e",
@@ -26,7 +26,12 @@ async function run() {
 
     console.log(r5);
 
-    // ACTUAL:
+    // ACTUAL: {
+    // name: 'e',
+    //   legs: 4,
+    //     _id: new ObjectId('6a50c0885f658c0e4d79a2b5'),
+    //       __v: 0
+    //}
 
     await mongoose.disconnect();
 
