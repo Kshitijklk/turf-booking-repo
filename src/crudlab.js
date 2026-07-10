@@ -13,7 +13,9 @@ async function run() {
             n: 2
         });
     console.log('insertOne:', r1);
-    // ACTUAL: 
+    // ACTUAL: insertOne: {
+    //acknowledged: true,
+      //  insertedId: new ObjectId('6a507ad0001aa2c874dee1b6')}
 
     await mongoose.disconnect();
 }
