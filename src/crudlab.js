@@ -17,16 +17,18 @@ async function run() {
     //acknowledged: true,
     //  insertedId: new ObjectId('6a507ad0001aa2c874dee1b6')}
 
-    // ---- BLOCK 1: find() ----
+    // ---- BLOCK 2: find() ----
     // PREDICTION: the returned object conatains,
     //  a unique ID, given name and n value
-    const r1 = await db.collection('lab')
+    const r2 = await db.collection('lab')
         .find(
-            { name: 'justin', });
-        .toarray();
+            { name: 'justin' })
+        .toArray();
 
-    console.log(result);
-    // ACTUAL: 
+    console.log(r2);
+    // ACTUAL: [ { _id: new ObjectId('6a507ad0001aa2c874dee1b6'), name: 'justin',  n: 2 }]
+    //mistake: ran the insertone block twice, so the find() returned two objects with the same name and n value, but different unique IDs
+    
 
     await mongoose.disconnect();
 }
