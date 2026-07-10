@@ -16,10 +16,9 @@ async function run() {
 
     console.log("deleteOne:", r11);
 
-    // ACTUAL:
-}
+    // ACTUAL:deleteOne: { acknowledged: true, deletedCount: 1 }
 
-await mongoose.disconnect();
+    await mongoose.disconnect();
 
 }
 run();
