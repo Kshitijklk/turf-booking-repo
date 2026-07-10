@@ -12,23 +12,22 @@ async function run() {
 
     const Animal = mongoose.model("Animal", animalSchema);
 
-    // ---- BLOCK 3----
+    // ---- BLOCK 4----
 
     // PREDICTION:
-    // "four" cannot be converted into a Number,
-    // so Mongoose should throw an error.
+    // An object cannot be converted into a Number,
+    // so Mongoose should throw a Error.
 
-    const r3 = await Animal.create({
-        name: "c",
-        legs: "four"
+    const r4 = await Animal.create({
+        name: "d",
+        legs: {
+            years: 4
+        }
     });
 
-    console.log(r3);
+    console.log(r4);
 
-    // ACTUAL: ValidationError: Animal validation failed: legs:
-    //  Cast to Number failed for value "four" (type string) at path "legs"
-
-
+    // ACTUAL:
     await mongoose.disconnect();
 
 }
