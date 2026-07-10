@@ -6,17 +6,16 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK 12: deleteOne ----
+    // ---- BLOCK14 : indexes before deleteMany ----
 
-    // PREDICTION: I think deleteOne() will delete only one document.
+    // PREDICTION:
+    // I think the collection has the default _id index and the unique name index.
 
-    const r11 = await db.collection("lab").deleteOne({
-        status: "temp"
-    });
+    const r13 = await db.collection("lab").indexes();
 
-    console.log("deleteOne:", r11);
+    console.log("Indexes:", r13);
 
-    // ACTUAL:deleteOne: { acknowledged: true, deletedCount: 1 }
+    // ACTUAL:
 
     await mongoose.disconnect();
 
