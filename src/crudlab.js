@@ -6,17 +6,16 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK 8: updateOne with $set ---- 
+    // ---- BLOCK 9: updateOne without $set ---- 
     // PREDICTION: it will update the document with name "justin" and set the field n to 10.
-    const r7 = await db.collection('lab').updateOne(
-        { name: "justin" }, { $set: { n: 10 } }
+    const r8 = await db.collection('lab').updateOne(
+        { name: "justin" }, {{ n: 10 } }
     );
 
 
-    console.log('updateOne:', r7);
-    // ACTUAL: updateOne: {acknowledged: true, modifiedCount: 1,upsertedId: null, upsertedCount: 0,matchedCount: 1}
-
-    await mongoose.disconnect();
+console.log('updateOne:', r8);
+// ACTUAL: 
+await mongoose.disconnect();
 }
 
 
