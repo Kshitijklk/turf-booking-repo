@@ -14,7 +14,7 @@ async function run() {
     );
 
     console.log("findOneAndUpdate:", r);
-    // ACTUAL: 
+    // ACTUAL: the document was updated and the returned already contained the updated value
     await mongoose.disconnect();
 
 
