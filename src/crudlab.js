@@ -6,20 +6,15 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK 7: insertMany with ordered: false ---- 
-    // PREDICTION: with ordereed:false now it might insert the first 2 documents, ignore the document that violates the unique
-    // constraint, and then insert the last 2 documents. 
-    const r6 = await db.collection('lab').insertMany([
-        { name: "maddie", n: 3 },
-        { name: "travis", n: 4 },
-        { name: "travis", n: 5 },
-        { name: "rick", n: 6 },
-        { name: "carl", n: 7 }
+    // ---- BLOCK 8: updateOne with $set ---- 
+    // PREDICTION: it will update the document with name "justin" and set the field n to 10.
+    const r7 = await db.collection('lab').updateOne(
+        { name: "justin" }, { $set: { n: 10 } }
+    );
 
-    ], { ordered: false });
-    console.log('insertMany:', r6);
-    // ACTUAL: it threw an error and did not insert the first three cause 1nd and 2nd were already in the 
-    //collection and the third was a dupe. It did insert the last two documents.
+
+    console.log('updateOne:', r7);
+    // ACTUAL: 
 
     await mongoose.disconnect();
 }
