@@ -14,7 +14,8 @@ async function run() {
 
     console.log("drop:", r15);
 
-    // ACTUAL:
+    // ACTUAL: drop: true
+
 
     await mongoose.disconnect();
 
