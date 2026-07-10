@@ -12,7 +12,7 @@ async function run() {
     const r4 = await db.collection('lab').deleteOne(
         {name: 'justin'});
     console.log('deleteOne:', r4);
-    // ACTUAL:
+    // ACTUAL: deleteOne: { acknowledged: true, deletedCount: 1 }
 
 
 
