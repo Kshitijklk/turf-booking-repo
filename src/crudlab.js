@@ -6,15 +6,16 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK 9: updateOne without $set ---- 
-    // PREDICTION: it will execute the find order and return the document and then update the document
-    const r = await db.collection("lab").findOneAndUpdate(
+    // ---- BLOCK 10: returnDocument ----
+    // PREDICTION: { returnDocument: 'after' } will first update the document and then return the updated value
+    const r9 = await db.collection("lab").findOneAndUpdate(
         { name: "justin" },
-        { $set: { n: 10 } }
+        { $set: { n: 20 } },
+        { returnDocument: 'after' }
     );
 
-    console.log("findOneAndUpdate:", r);
-    // ACTUAL: the document was updated and the returned already contained the updated value
+    console.log("returnDocument:", r9);
+    // ACTUAL: 
     await mongoose.disconnect();
 
 
