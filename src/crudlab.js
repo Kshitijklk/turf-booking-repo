@@ -19,7 +19,8 @@ async function run() {
 
 
     console.log("insertMany:", r10);
-    // ACTUAL:
+    // ACTUAL:insertMany: { acknowledged: true, insertedCount: 3,insertedIds: {'0': new ObjectId('6a50a2fc76a2de310aa2beb2'),'1': new ObjectId('6a50a2fc76a2de310aa2beb3'),'2': new ObjectId('6a50a2fc76a2de310aa2beb4')}
+      }
 
     await mongoose.disconnect();
 
