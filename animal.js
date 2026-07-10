@@ -12,24 +12,20 @@ async function run() {
 
     const Animal = mongoose.model("Animal", animalSchema);
 
-    // ---- BLOCK 1 ----
+    // ---- BLOCK  ----
 
     // PREDICTION:
-    // The document will be created successfully cause both fields match the schema.
+    // Mongoose using type casting will convert the string "4"
+    // into the Number 4 and save the document.
 
-    const r1 = await Animal.create({
-        name: "a",
-        legs: 4
+    const r2 = await Animal.create({
+        name: "b",
+        legs: "4"
     });
 
-    console.log(r1);
+    console.log(r2);
 
-    // ACTUAL:{
-    //name: 'a',
-    //  legs: 4,
-    //    _id: new ObjectId('6a50bbd4f70f106c515b1a75'),
-    //__v: 0
-
+    // ACTUAL:
     await mongoose.disconnect();
 
 }
