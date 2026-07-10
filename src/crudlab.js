@@ -18,7 +18,8 @@ async function run() {
 
     ], { ordered: false });
     console.log('insertMany:', r6);
-    // ACTUAL: 
+    // ACTUAL: it threw an error and did not insert the first three cause 1nd and 2nd were already in the 
+    //collection and the third was a dupe. It did insert the last two documents.
 
     await mongoose.disconnect();
 }
