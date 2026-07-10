@@ -5,18 +5,16 @@ async function run() {
     await mongoose.connect(process.env.MONGO_URI);
     const db = mongoose.connection.db;
 
-
-    // ---- BLOCK 15: deleteMany ----
+    // ---- BLOCK 16: drop ----
 
     // PREDICTION:
-    // i predict deleteMany({}) will remove all documents leaving the colection exmpty
+    // I think drop() will delete the entire collection
 
-    const r14 = await db.collection("lab").deleteMany({});
+    const r15 = await db.collection("lab").drop();
 
-    console.log("deleteMany:", r14);
+    console.log("drop:", r15);
 
-    // ACTUAL: deleteMany: { acknowledged: true, deletedCount: 7 }
-    
+    // ACTUAL:
 
     await mongoose.disconnect();
 
