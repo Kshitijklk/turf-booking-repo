@@ -6,23 +6,20 @@ async function run() {
     const db = mongoose.connection.db;
 
 
-    // ---- BLOCK 10 : insertMany ----
+    // ---- BLOCK 12: deleteOne ----
 
-    // PREDICTION:
-    // I think three documents with status "temp" will be inserted.
+    // PREDICTION: I think deleteOne() will delete only one document.
 
-    const r10 = await db.collection("lab").insertMany([
-        { name: "A", status: "temp" },
-        { name: "B", status: "temp" },
-        { name: "C", status: "temp" }
-    ]);
+    const r11 = await db.collection("lab").deleteOne({
+        status: "temp"
+    });
 
+    console.log("deleteOne:", r11);
 
-    console.log("insertMany:", r10);
-    // ACTUAL:insertMany: { acknowledged: true, insertedCount: 3,insertedIds: {'0': new ObjectId('6a50a2fc76a2de310aa2beb2'),'1': new ObjectId('6a50a2fc76a2de310aa2beb3'),'2': new ObjectId('6a50a2fc76a2de310aa2beb4')}
-      }
+    // ACTUAL:
+}
 
-    await mongoose.disconnect();
+await mongoose.disconnect();
 
 }
 run();
