@@ -4,31 +4,16 @@ const mongoose = require('mongoose');
 async function run() {
     await mongoose.connect(process.env.MONGO_URI);
     const db = mongoose.connection.db;
-    // ---- BLOCK 1: insertOne ----
-    // PREDICTION: the returned object conatains object with an ack,
-    //  a unique ID, given name and n value
-    const r1 = await db.collection('lab').insertOne(
-        {
-            name: 'justin',
-            n: 2
-        });
-    console.log('insertOne:', r1);
-    // ACTUAL: insertOne: {
-    //acknowledged: true,
-    //  insertedId: new ObjectId('6a507ad0001aa2c874dee1b6')}
 
-    // ---- BLOCK 2: find() ----
-    // PREDICTION: the returned object conatains,
-    //  a unique ID, given name and n value
-    const r2 = await db.collection('lab')
-        .find(
-            { name: 'justin' })
-        .toArray();
 
-    console.log(r2);
-    // ACTUAL: [ { _id: new ObjectId('6a507ad0001aa2c874dee1b6'), name: 'justin',  n: 2 }]
-    //mistake: ran the insertone block twice, so the find() returned two objects with the same name and n value, but different unique IDs
-    
+    // ---- BLOCK : findOne ----
+    // PREDICTION:it will return the first object named justin(since there are two), its id =, name and n value
+    const r3 = await db.collection('lab').findOne(
+        {name: 'justin'});
+    console.log('findOne:', r3);
+    // ACTUAL: 
+
+
 
     await mongoose.disconnect();
 }
