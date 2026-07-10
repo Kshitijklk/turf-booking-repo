@@ -15,7 +15,10 @@ async function run() {
 
     console.log("Indexes:", r13);
 
-    // ACTUAL:
+    // ACTUAL:Indexes: [
+   // { v: 2, key: { _id: 1 }, name: '_id_' },
+    //{ v: 2, key: { name: 1 }, name: 'name_1', unique: true }
+      ]
 
     await mongoose.disconnect();
 
