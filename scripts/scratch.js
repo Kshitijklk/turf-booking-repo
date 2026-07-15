@@ -38,3 +38,13 @@ run().catch(console.error);
 // question 1)
 // answer: A new OTP request overwrites the previous OTP in the customer document 
 // if no new OTP is requested, the expired OTP remains stored even after its expiry time
+
+// questio 2)
+// Every OTP request writes to the Customer document, while authenticated requests
+//  frequently read the same document 
+// this mixes high - frequency writes with frequent reads on the same collection
+
+// At around 100 users, this has little impact at a 100,000 + users, it can reduce performance because
+// the customer collection 
+// is handling both temporary OTP updates and regular customer readseparating OTPs into their own collection keeps customer data mostly read - only while
+//  OTP data handles the rewrites independently
