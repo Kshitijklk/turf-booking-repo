@@ -3,38 +3,38 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const connectDB = require("../src/db");
 const Customer = require("../src/models/customer.model");
-const { encrypt } = require("../src/utils/crypto");
+const { encrypt, hashPhone } = require("../src/utils/crypto");
 
 async function run() {
     await connectDB();
 
+    await Customer.deleteMany({});
 
-console.log(encrypt("9876543210"));
-console.log(encrypt("9876543210"));
+    const phone = "9876543210";
 
-await Customer.create({
-  full_name: "John Doe",
-  country_code: "+91",
-  phone_number: encrypt("9876543210")
-});
+    const customer = await Customer.create({
+        full_name: "John Doe",
+        country_code: "+91",
+        phone_number: encrypt(phone),
+        phone_number_hash: hashPhone(phone),
+        otp: 123456,
+        otp_expiry: new Date(Date.now() + 5 * 60 * 1000)
+    });
 
-await Customer.create({
-  full_name: "Jane Doe",
-  country_code: "+91",
-  phone_number: encrypt("9876543210")
-});
+    console.log("Original OTP:", customer.otp);
+
+    customer.otp = 654321;
+    await customer.save();
+
+    const updated = await Customer.findById(customer._id);
+
+    console.log("Updated OTP:", updated.otp);
+
     await mongoose.disconnect();
-
 }
 
 run().catch(console.error);
 
-// observations:
-// 1) ecrypting the same plaintext ("9876543210") twice results in different ciphertexts each time
-//  This is due to the use of a random IV in the encryption process, which
-//   ensures that even if the same plaintext is encrypted multiple times, the 
-//   output will be unique each time
-// 2) the unique index didnt stop the insertion of duplicate phone numbers because the encrypted
-//  values are different each time, even though the original plaintext is the same
-//   This means that the unique index on the phone_number field in the database does not 
-//   prevent duplicates based on the original plaintext value, only on the encrypted value
+// question 1)
+// answer: A new OTP request overwrites the previous OTP in the customer document 
+// if no new OTP is requested, the expired OTP remains stored even after its expiry time
