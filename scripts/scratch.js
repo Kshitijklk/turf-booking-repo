@@ -13,7 +13,7 @@ async function run() {
     const phone = "9876543210";
 
     const customer = await Customer.create({
-        full_name: "John Doe",
+        full_name: "John williams",
         country_code: "+91",
         phone_number: encrypt(phone),
         phone_number_hash: hashPhone(phone),
