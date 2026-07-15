@@ -48,3 +48,17 @@ run().catch(console.error);
 // the customer collection 
 // is handling both temporary OTP updates and regular customer readseparating OTPs into their own collection keeps customer data mostly read - only while
 //  OTP data handles the rewrites independently
+
+// question 3)
+// the otp collection is designed to store only one oto at the time This may not be the behaviour we
+// want because  the first OTP was still valid when it was sent, but it no longer works after being
+//  overwritten
+
+// This behaviour happens because the data model stores only one OTP in the customer document 
+// every new OTP replaces the previous one
+
+// question 4)
+// creating a half built record fills the databsase with unneccessary data A better solution is to 
+//  a separate OTP collection.The OTP is stored there temporarily after the user verifies the OTP, 
+//  the customer account can be created with complete information if the user never verifies, the 
+//  OTP record can simply expire and be deleted automatically
