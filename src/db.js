@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 async function connectDB() {
     try {
         await mongoose.connect(process.env.MONGO_URI);
+
+        console.log("Host:", mongoose.connection.host);
+        console.log("Port:", mongoose.connection.port);
+        console.log("Database:", mongoose.connection.name);
         console.log('MongoDB connected');
     } catch (err) {
         console.error('MongoDB connection failed:', err.message);
@@ -11,3 +15,4 @@ async function connectDB() {
 }
 
 module.exports = connectDB;
+

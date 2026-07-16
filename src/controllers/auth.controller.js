@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const crypto = require("crypto");
 const Customer = require("../models/customer.model");
 const Otp = require("../models/otp.model");
@@ -23,10 +24,11 @@ async function sendOtp(req, res) {
         const phoneHash = hashPhone(normalizedPhone);
         const otp = crypto.randomInt(100000, 1000000).toString();
         const otpHash = hashOtp(otp);
-        
-        await Otp.findOneAndUpdate(
+
+        const result = await Otp.findOneAndUpdate(
             { phone_number_hash: phoneHash },
             {
+                phone_number_hash: phoneHash,
                 otp_hash: otpHash,
                 attempts: 0,
                 expires_at: new Date(Date.now() + 5 * 60 * 1000)
@@ -35,10 +37,18 @@ async function sendOtp(req, res) {
                 upsert: true,
                 new: true
             }
+
         );
-        console.log("OTP:", otp);
+
+        console.log("Saved OTP document:", result);
+        console.log("Collection:", result.collection.name);
+        console.log("Connection DB:", Otp.db.name);
+
+        //console.log("OTP:", otp);
         return res.status(200).json({
-            message: "OTP sent successfully."
+            message: "OTP sent successfully.",
+           otp
+
         });
     } catch (error) {
         console.error(error);
@@ -49,9 +59,9 @@ async function sendOtp(req, res) {
 }
 async function verifyOtp(req, res) {
     try {
-        const { country_code, phone_number, otp } = req.body;
+        const { full_name, country_code, phone_number, otp } = req.body;
 
-        if (!country_code || !phone_number || !otp) {
+        if (!full_name || !country_code || !phone_number || !otp) {
             return res.status(400).json({
                 message: "Country code, phone number and OTP are required."
             });
@@ -109,7 +119,7 @@ async function verifyOtp(req, res) {
 
         if (!customer) {
             customer = await Customer.create({
-                full_name: "New Customer",
+                full_name: full_name,
                 country_code: country_code,
                 phone_number: encrypt(normalizedPhone),
                 phone_number_hash: phoneHash
@@ -127,7 +137,29 @@ async function verifyOtp(req, res) {
 
     }
 }
+
+async function getCustomerById(req, res) { //get customer day-4
+    try {
+
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid customer id."
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
 module.exports = {
     sendOtp,
-    verifyOtp
+    verifyOtp,
+    getCustomerById
+    
 };
