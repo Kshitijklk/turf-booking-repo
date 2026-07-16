@@ -138,14 +138,25 @@ async function verifyOtp(req, res) {
     }
 }
 
-async function getCustomerById(req, res) { //get customer day-4
+async function getCustomerById(req, res) {
     try {
 
         const { id } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+    
+            if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "Invalid customer id."
+            });
+        }
+
+        
+        const customer = await Customer.findById(id);
+
+        
+        if (!customer) {
+            return res.status(404).json({
+                message: "Customer not found."
             });
         }
 
@@ -161,5 +172,5 @@ module.exports = {
     sendOtp,
     verifyOtp,
     getCustomerById
-    
+
 };

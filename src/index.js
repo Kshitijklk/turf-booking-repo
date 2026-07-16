@@ -13,7 +13,7 @@ app.get("/health", (req, res) => {
     res.json({ status: "ok" });
 });
 
-// Register auth routes
+
 app.use("/auth", authRoutes);
 
 async function start() {
