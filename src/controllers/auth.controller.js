@@ -5,6 +5,7 @@ const Otp = require("../models/otp.model");
 
 const {
     encrypt,
+    decrypt,
     normalizePhone,
     hashPhone,
     hashOtp
@@ -125,6 +126,11 @@ async function verifyOtp(req, res) {
                 phone_number_hash: phoneHash
             });
         }
+
+        return res.status(200).json({
+            customer
+        });
+
         return res.status(200).json({
             message: "OTP verified successfully",
             customer
@@ -138,27 +144,37 @@ async function verifyOtp(req, res) {
     }
 }
 
+function toCustomerResponse(customer) {
+    return {
+        id: customer._id,
+        full_name: customer.full_name,
+        country_code: customer.country_code,
+        phone_number: decrypt(customer.phone_number),
+        created_at: customer.created_at
+    };
+}
 async function getCustomerById(req, res) {
     try {
 
         const { id } = req.params;
 
-    
-            if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "Invalid customer id."
             });
         }
 
-        
         const customer = await Customer.findById(id);
 
-        
         if (!customer) {
             return res.status(404).json({
                 message: "Customer not found."
             });
         }
+
+        return res.status(200).json({
+            customer: toCustomerResponse(customer)
+        });
 
     } catch (error) {
         console.error(error);
@@ -168,9 +184,9 @@ async function getCustomerById(req, res) {
         });
     }
 }
+
 module.exports = {
     sendOtp,
     verifyOtp,
     getCustomerById
-
 };
