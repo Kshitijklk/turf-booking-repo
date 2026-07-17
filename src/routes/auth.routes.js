@@ -5,7 +5,8 @@ const {
     verifyOtp,
     getCustomerById,
     getCustomers,
-    updateCustomer
+    updateCustomer,
+    getCustomerSummary
 } = require("../controllers/auth.controller");
 
 const router = express.Router();
@@ -13,6 +14,8 @@ const router = express.Router();
 router.post("/customer/send-otp", sendOtp);
 
 router.post("/customer/verify-otp", verifyOtp);
+
+router.get("/customer/:id/summary", getCustomerSummary);
 
 router.get("/customer/:id", getCustomerById);
 

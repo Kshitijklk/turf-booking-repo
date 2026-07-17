@@ -55,6 +55,7 @@ async function getSports(req, res) {
 
 }
 
+
 module.exports = {
     createSport,
     getSports
