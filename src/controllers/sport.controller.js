@@ -22,45 +22,70 @@ async function createSport(req, res) {
         console.error(error);
         return res.status(500).json({
             message: "Internal Server Error"
-
         });
     }
 }
-
 const Fuse = require("fuse.js");
+
 
 async function getSports(req, res) {
 
     try {
 
-        const { sport_name, status, page, limit } = req.query;
+        const { sport_name, status, sort, page, limit } = req.query;
+        const filter = {
+            status: "active"
+        };
+
+        if (req.query.include_disabled === "true") {
+            delete filter.status;
+        } else if (status) {
+            filter.status = status;
+        }
+
+        if (sport_name) {
+            const escapedName = sport_name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            filter.sport_name = {
+                $regex: escapedName,
+                $options: "i"
+            };
+        }
+
+        const allowedSortFields = [
+            "sport_name",
+            "createdAt",
+            "status"
+        ];
+
+        let sortOption = {
+            createdAt: -1
+        };
+
+        if (sort) {
+            let field = sort;
+            let order = 1;
+            if (sort.startsWith("-")) {
+                field = sort.substring(1);
+                order = -1;
+            }
+
+            if (!allowedSortFields.includes(field)) {
+                return res.status(400).json({
+                    message: "Invalid sort field"
+                });
+            }
+            sortOption = {};
+            sortOption[field] = order;
+        }
 
         // Pagination
         const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
         const limitNumber = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
         const skip = (pageNumber - 1) * limitNumber;
 
-        // Filters
-        const filter = {};
-
-        if (status) {
-            filter.status = status;
-        }
-
-        if (sport_name) {
-
-            const escapedName = sport_name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-            filter.sport_name = {
-                $regex: escapedName,
-                $options: "i"
-            };
-
-        }
-
-        // Fetch data and count together
         const [sports, total] = await Promise.all([
             Sport.find(filter)
+                .sort(sortOption)
                 .skip(skip)
                 .limit(limitNumber),
 
@@ -79,53 +104,41 @@ async function getSports(req, res) {
         });
 
     } catch (error) {
-
         console.error(error);
-
         return res.status(500).json({
             message: "Internal Server Error"
         });
-
     }
-
 }
 async function patchSport(req, res) {
     try {
         const { id } = req.params;
         const { sport_name, sport_icon } = req.body;
-
         const sport = await Sport.findById(id);
-
         if (!sport) {
             return res.status(404).json({
                 message: "Sport not found"
             });
         }
-
         // Prevent duplicate sportss
         if (sport_name) {
             const existingSport = await Sport.findOne({ sport_name });
-
             if (existingSport && existingSport._id.toString() !== id) {
                 return res.status(409).json({
                     message: "Sport already exists"
                 });
             }
-
             sport.sport_name = sport_name;
         }
 
         if (sport_icon) {
             sport.sport_icon = sport_icon;
         }
-
         await sport.save();
-
         return res.status(200).json({
             message: "Sport updated successfully",
             data: sport
         });
-
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -135,12 +148,9 @@ async function patchSport(req, res) {
 }
 
 async function putSport(req, res) {
-
     try {
-
         const { id } = req.params;
         const { sport_name, sport_icon } = req.body;
-
         // PUT requires all fields
         if (!sport_name || sport_icon === undefined) {
             return res.status(400).json({
@@ -155,115 +165,52 @@ async function putSport(req, res) {
                 message: "Sport not found"
             });
         }
-
         // Prevent duplicate names
         const existingSport = await Sport.findOne({ sport_name });
-
         if (existingSport && existingSport._id.toString() !== id) {
             return res.status(409).json({
                 message: "Sport already exists"
             });
         }
-
         sport.sport_name = sport_name;
         sport.sport_icon = sport_icon;
 
         await sport.save();
-
         return res.status(200).json({
             message: "Sport replaced successfully",
             data: sport
         });
 
     } catch (error) {
-
         console.error(error);
-
         return res.status(500).json({
             message: "Internal Server Error"
         });
-
     }
-
 }
 
 async function deleteSport(req, res) {
+
     try {
-
         const { id } = req.params;
-
-        const sport = await Sport.findByIdAndDelete(id);
+        const sport = await Sport.findById(id);
 
         if (!sport) {
             return res.status(404).json({
                 message: "Sport not found"
             });
         }
-
+        sport.status = "disabled";
+        await sport.save();
         return res.status(200).json({
-            message: "Sport deleted successfully",
+            message: "Sport disabled successfully",
             data: sport
         });
-
     } catch (error) {
         console.error(error);
-
         return res.status(500).json({
             message: "Internal Server Error"
         });
-    }
-}
-
-async function searchSportsBasic(req, res) {
-    try {
-
-        const { sport_name } = req.query;
-
-        
-        if (!sport_name) {
-            return res.status(400).json({
-                message: "sport_name query parameter is required"
-            });
-        }
-
-        const searchTerm = sport_name.trim().toLowerCase();
-
-        const sports = await Sport.find();
-
-        const filteredSports = [];
-
-        for (let i = 0; i < sports.length; i++) {
-
-            if (
-                sports[i]
-                    .sport_name
-                    .toLowerCase()
-                    .includes(searchTerm)
-            ) {
-                filteredSports.push(sports[i]);
-            }
-
-        }
-
-        if (filteredSports.length === 0) {
-            return res.status(404).json({
-                message: `No sports found with ${sport_name}`
-            });
-        }
-
-        return res.status(200).json({
-            message: "Sports found successfully",
-            data: filteredSports
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
-
     }
 }
 module.exports = {
@@ -271,6 +218,5 @@ module.exports = {
     getSports,
     putSport,
     patchSport,
-    searchSportsBasic,
     deleteSport
 };
