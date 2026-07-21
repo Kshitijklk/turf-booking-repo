@@ -33,36 +33,52 @@ async function getSports(req, res) {
 
     try {
 
-        const { sport_name } = req.query;
+        const { sport_name, status, page, limit } = req.query;
 
-        const sports = await Sport.find();
+        // Pagination
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
+        const skip = (pageNumber - 1) * limitNumber;
+
+        // Filters
+        const filter = {};
+
+        if (status) {
+            filter.status = status;
+        }
 
         if (sport_name) {
 
-            const fuse = new Fuse(sports, {
-                keys: ["sport_name"],
-                threshold: 0.4
-            });
+            const escapedName = sport_name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-            const result = fuse.search(sport_name);
-
-            const filteredSports = result.map(result => result.item);
-
-            return res.status(200).json({
-                message: "Sports found successfully",
-                data: filteredSports
-            });
+            filter.sport_name = {
+                $regex: escapedName,
+                $options: "i"
+            };
 
         }
 
+        // Fetch data and count together
+        const [sports, total] = await Promise.all([
+            Sport.find(filter)
+                .skip(skip)
+                .limit(limitNumber),
+
+            Sport.countDocuments(filter)
+        ]);
+
         return res.status(200).json({
             message: "Sports fetched successfully",
-            data: sports
+            data: sports,
+            pagination: {
+                page: pageNumber,
+                limit: limitNumber,
+                total,
+                total_pages: Math.ceil(total / limitNumber)
+            }
         });
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(error);
 
