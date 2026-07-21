@@ -73,7 +73,7 @@ async function getSports(req, res) {
     }
 
 }
-async function updateSport(req, res) {
+async function patchSport(req, res) {
     try {
         const { id } = req.params;
         const { sport_name, sport_icon } = req.body;
@@ -118,19 +118,57 @@ async function updateSport(req, res) {
     }
 }
 
-async function deleteAllSports(req, res) {
+async function putSport(req, res) {
+
     try {
-        const result = await Sport.deleteMany({});
+
+        const { id } = req.params;
+        const { sport_name, sport_icon } = req.body;
+
+        // PUT requires all fields
+        if (!sport_name || sport_icon === undefined) {
+            return res.status(400).json({
+                message: "sport_name and sport_icon are required"
+            });
+        }
+
+        const sport = await Sport.findById(id);
+
+        if (!sport) {
+            return res.status(404).json({
+                message: "Sport not found"
+            });
+        }
+
+        // Prevent duplicate names
+        const existingSport = await Sport.findOne({ sport_name });
+
+        if (existingSport && existingSport._id.toString() !== id) {
+            return res.status(409).json({
+                message: "Sport already exists"
+            });
+        }
+
+        sport.sport_name = sport_name;
+        sport.sport_icon = sport_icon;
+
+        await sport.save();
+
         return res.status(200).json({
-            message: "All sports deleted successfully",
-            deletedCount: result.deletedCount
+            message: "Sport replaced successfully",
+            data: sport
         });
+
     } catch (error) {
+
         console.error(error);
+
         return res.status(500).json({
             message: "Internal Server Error"
         });
+
     }
+
 }
 
 async function deleteSport(req, res) {
@@ -161,10 +199,18 @@ async function deleteSport(req, res) {
 }
 
 async function searchSportsBasic(req, res) {
-
     try {
 
         const { sport_name } = req.query;
+
+        
+        if (!sport_name) {
+            return res.status(400).json({
+                message: "sport_name query parameter is required"
+            });
+        }
+
+        const searchTerm = sport_name.trim().toLowerCase();
 
         const sports = await Sport.find();
 
@@ -172,10 +218,21 @@ async function searchSportsBasic(req, res) {
 
         for (let i = 0; i < sports.length; i++) {
 
-            if (sports[i].sport_name.includes(sport_name)) {
+            if (
+                sports[i]
+                    .sport_name
+                    .toLowerCase()
+                    .includes(searchTerm)
+            ) {
                 filteredSports.push(sports[i]);
             }
 
+        }
+
+        if (filteredSports.length === 0) {
+            return res.status(404).json({
+                message: `No sports found with ${sport_name}`
+            });
         }
 
         return res.status(200).json({
@@ -192,13 +249,12 @@ async function searchSportsBasic(req, res) {
         });
 
     }
-
 }
 module.exports = {
     createSport,
     getSports,
-    updateSport,
-    deleteAllSports,
+    putSport,
+    patchSport,
     searchSportsBasic,
     deleteSport
 };
