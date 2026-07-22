@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Sport = require("../models/sport.model");
 async function createSport(req, res) {
     
@@ -213,10 +214,134 @@ async function deleteSport(req, res) {
         });
     }
 }
-module.exports = {
-    createSport,
-    getSports,
-    putSport,
-    patchSport,
-    deleteSport
+
+const bulkCreateSports = async (req, res) => {
+    try {
+
+        const { sports } = req.body;
+
+        if (!sports) {
+            return res.status(400).json({
+                message: "Sports array is required"
+            });
+        }
+
+        if (!Array.isArray(sports)) {
+            return res.status(400).json({
+                message: "Sports must be an array"
+            });
+        }
+
+        if (sports.length === 0) {
+            return res.status(400).json({
+                message: "Sports array cannot be empty"
+            });
+        }
+
+        if (sports.length > 100) {
+            return res.status(400).json({
+                message: "Maximum 100 sports allowed"
+            });
+        }
+
+        for (let i = 0; i < sports.length; i++) {
+
+            if (!sports[i].sport_name) {
+                return res.status(400).json({
+                    message: `sport_name is missing at index ${i}`
+                });
+            }
+
+        }
+
+        const createdSports = await Sport.insertMany(sports);
+
+        return res.status(201).json({
+            message: "Sports created successfully",
+            sports: createdSports
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+
+    }
 };
+
+const bulkUpdateStatus = async (req, res) => {
+
+    try {
+
+        const { ids, status } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({
+                message: "Ids array is required"
+            });
+        }
+
+        if (!status) {
+            return res.status(400).json({
+                message: "Status is required"
+            });
+        }
+
+        for (let i = 0; i < ids.length; i++) {
+
+            if (!mongoose.isValidObjectId(ids[i])) {
+
+                return res.status(400).json({
+                    message: `Invalid id at index ${i}`
+                });
+
+            }
+
+        }
+
+        const result = await Sport.updateMany(
+
+            {
+                _id: { $in: ids }
+            },
+
+            {
+                $set: { status }
+            }
+
+        );
+
+        return res.status(200).json({
+
+            message: "Sports updated successfully",
+
+            matchedCount: result.matchedCount,
+
+            modifiedCount: result.modifiedCount
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+
+    }
+
+};
+
+module.exports = {
+        createSport,
+        getSports,
+        putSport,
+        patchSport,
+        deleteSport,
+        bulkCreateSports,
+        bulkUpdateStatus
+    };

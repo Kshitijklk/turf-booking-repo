@@ -2,15 +2,18 @@ const express = require("express");
 
 const {
     createSport,
-        getSports,
-        putSport,
-        patchSport,
-        deleteSport
+    getSports,
+    putSport,
+    patchSport,
+    deleteSport,
+    bulkCreateSports,
+    bulkUpdateStatus
 } = require("../controllers/sport.controller");
-
 const router = express.Router();
 
 router.post("/", createSport);
+router.post("/bulk", bulkCreateSports);
+router.patch("/bulk-status", bulkUpdateStatus);
 router.get("/", getSports);
 router.put("/:id", putSport);
 router.patch("/:id", patchSport);
