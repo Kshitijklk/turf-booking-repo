@@ -5,6 +5,7 @@ const connectDB = require("./db");
 
 const authRoutes = require("./routes/auth.routes");
 const sportRoutes = require("./routes/sport.routes");
+const ownerAuthRoutes = require("./routes/ownerAuth.routes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/health", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/sports", sportRoutes);
+app.use("/owner", ownerAuthRoutes);
 
 async function start() {
     await connectDB();

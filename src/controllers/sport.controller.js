@@ -26,7 +26,6 @@ async function createSport(req, res) {
         });
     }
 }
-
 async function getSports(req, res) {
 
     try {
@@ -67,7 +66,6 @@ async function getSports(req, res) {
                 field = sort.substring(1);
                 order = -1;
             }
-
             if (!allowedSortFields.includes(field)) {
                 return res.status(400).json({
                     message: "Invalid sort field"
@@ -76,8 +74,7 @@ async function getSports(req, res) {
             sortOption = {};
             sortOption[field] = order;
         }
-
-        // Pagination
+        
         const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
         const limitNumber = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
         const skip = (pageNumber - 1) * limitNumber;

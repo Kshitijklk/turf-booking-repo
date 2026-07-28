@@ -9,6 +9,9 @@ function normalizePhone(phone) {
 
     return normalized;
 }
+function normalizeEmail(email) {
+    return email.trim().toLowerCase();
+}
 
 const KEY = Buffer.from(process.env.ENCRYPTION_KEY, "hex");
 
@@ -67,6 +70,14 @@ function hashPhone(phone) {
         .update(normalized)
         .digest("hex");
 }
+function hashEmail(email) {
+    const normalized = normalizeEmail(email);
+
+    return crypto
+        .createHmac("sha256", process.env.HASH_KEY)
+        .update(normalized)
+        .digest("hex");
+}
 
 function hashOtp(otp) {
     return crypto
@@ -74,11 +85,36 @@ function hashOtp(otp) {
         .update(String(otp))
         .digest("hex");
 }
+function encryptEmail(email) {
+    const plaintext = normalizeEmail(email);
+    const iv = crypto.randomBytes(12);
 
+    const cipher = crypto.createCipheriv(
+        "aes-256-gcm",
+        KEY,
+        iv
+    );
+
+    const encrypted = Buffer.concat([
+        cipher.update(plaintext, "utf8"),
+        cipher.final()
+    ]);
+
+    const tag = cipher.getAuthTag();
+
+    return Buffer.concat([
+        iv,
+        tag,
+        encrypted
+    ]).toString("base64");
+}
 module.exports = {
     encrypt,
+    encryptEmail,
     decrypt,
     hashPhone,
+    hashEmail,
     hashOtp,
-    normalizePhone
+    normalizePhone,
+    normalizeEmail
 };
