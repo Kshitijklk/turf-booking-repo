@@ -94,6 +94,67 @@ async function registerOwner(req, res) {
 
     }
 
+async function loginOwner(req, res) {
+    try {
+        const {
+            email_address,
+            password
+        } = req.body;
+
+        if (!email_address || !password) {
+            return res.status(400).json({
+                message: "Email and password are required"
+            });
+        }
+
+        const email_hash = hashEmail(
+            normalizeEmail(email_address)
+        );
+
+        const owner = await BoxOwner.findOne({
+            email_hash
+        }).select("+password_hash +email_hash +phone_hash");
+
+        if (!owner) {
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(
+            password,
+            owner.password_hash
+        );
+
+        if (!isMatch) {
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        if (
+            owner.status === "disabled" ||
+            owner.status === "deleted"
+        ) {
+            return res.status(403).json({
+                message: "Account is disabled"
+            });
+        }
+
+        return res.status(200).json({
+            message: "Login successful",
+            data: toOwnerResponse(owner)
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+    }
+
 function toOwnerResponse(owner) {
     return {
         id: owner._id,
@@ -108,5 +169,6 @@ function toOwnerResponse(owner) {
     }
 
 module.exports = {
-    registerOwner
+    registerOwner,
+    loginOwner
     };
