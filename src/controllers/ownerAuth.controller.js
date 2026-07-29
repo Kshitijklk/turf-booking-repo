@@ -1,12 +1,15 @@
 const bcrypt = require("bcrypt");
 const BoxOwner = require("../models/boxOwner.model");
 const { signAccessToken } = require("../utils/token");
+const RefreshToken = require("../models/refreshToken.model");
 const {
     encrypt,
     encryptEmail,
     decrypt,
     hashPhone,
     hashEmail,
+    generateRefreshToken,
+    hashRefreshToken,
     normalizePhone,
     normalizeEmail
 } = require("../utils/crypto");
@@ -144,9 +147,21 @@ async function loginOwner(req, res) {
             role: "owner",
         });
 
+        const refreshToken = generateRefreshToken();
+
+        await RefreshToken.create({
+            user_id: owner._id,
+            role: "owner",
+            token_hash: hashRefreshToken(refreshToken),
+            expires_at: new Date(
+                Date.now() + 30 * 24 * 60 * 60 * 1000
+            )
+        });
+
         return res.status(200).json({
             message: "Login successful",
             access_token: accessToken,
+            refresh_token: refreshToken,
             data: toOwnerResponse(owner)
         });
     

@@ -2,13 +2,17 @@ const mongoose = require("mongoose");
 const crypto = require("crypto");
 const Customer = require("../models/customer.model");
 const Otp = require("../models/otp.model");
+const RefreshToken = require("../models/refreshToken.model");
+const { signAccessToken } = require("../utils/token");
 
 const {
     encrypt,
     decrypt,
     normalizePhone,
     hashPhone,
-    hashOtp
+    hashOtp,
+    generateRefreshToken,
+    hashRefreshToken
 } = require("../utils/crypto");
 
 function toCustomerResponse(customer) {
@@ -125,8 +129,26 @@ async function verifyOtp(req, res) {
                 phone_number_hash: phoneHash
             });
         }
+        const accessToken = signAccessToken({
+            id: customer._id,
+            role: "customer",
+        });
+
+        const refreshToken = generateRefreshToken();
+
+        await RefreshToken.create({
+            user_id: customer._id,
+            role: "customer",
+            token_hash: hashRefreshToken(refreshToken),
+            expires_at: new Date(
+                Date.now() + 30 * 24 * 60 * 60 * 1000
+            )
+        });
+
         return res.status(200).json({
             message: "OTP verified successfully",
+            access_token: accessToken,
+            refresh_token: refreshToken,
             customer: toCustomerResponse(customer)
         });
     } catch (error) {
