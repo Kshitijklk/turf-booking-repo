@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const BoxOwner = require("../models/boxOwner.model");
+const { signAccessToken } = require("../utils/token");
 const {
     encrypt,
     encryptEmail,
@@ -78,15 +79,12 @@ async function registerOwner(req, res) {
         }
     catch (error) {
         if (error.code === 11000) {
-            console.log("Duplicate Error:", error);
-
             return res.status(409).json({
-                message: "Email or phone already exists",
-                keyPattern: error.keyPattern,
-                keyValue: error.keyValue
+                message: "Unable to register with the provided credentials."
             });
+        
         }
-        console.error(error);
+        
         return res.status(500).json({
             message: "Internal Server Error"
         });
@@ -115,20 +113,21 @@ async function loginOwner(req, res) {
             email_hash
         }).select("+password_hash +email_hash +phone_hash");
 
-        if (!owner) {
-            return res.status(401).json({
-                message: "Invalid email or password"
-            });
-        }
+        const DUMMY_HASH =
+            "$2b$10$Q8dQh3R0m8sN9kqKQz4mP.Oe8XjT0F2Fy8s4p1N8L0yY8oJt5H3nC";
+
+        const passwordHash = owner
+            ? owner.password_hash
+            : DUMMY_HASH;
 
         const isMatch = await bcrypt.compare(
             password,
-            owner.password_hash
+            passwordHash
         );
 
-        if (!isMatch) {
+        if (!owner || !isMatch) {
             return res.status(401).json({
-                message: "Invalid email or password"
+                message: "Invalid email or password",
             });
         }
 
@@ -140,11 +139,17 @@ async function loginOwner(req, res) {
                 message: "Account is disabled"
             });
         }
+        const accessToken = signAccessToken({
+            id: owner._id,
+            role: "owner",
+        });
 
         return res.status(200).json({
             message: "Login successful",
+            access_token: accessToken,
             data: toOwnerResponse(owner)
         });
+    
 
     } catch (error) {
         console.error(error);
