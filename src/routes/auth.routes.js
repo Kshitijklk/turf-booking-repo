@@ -1,4 +1,5 @@
 const express = require("express");
+const requireAuth = require("../middlewares/requireAuth");
 
 const {
     sendOtp,
@@ -12,15 +13,9 @@ const {
 const router = express.Router();
 
 router.post("/customer/send-otp", sendOtp);
-
 router.post("/customer/verify-otp", verifyOtp);
-
-router.get("/customer/:id/summary", getCustomerSummary);
-
-router.get("/customer/:id", getCustomerById);
-
-router.get("/customers", getCustomers);
-
-router.patch("/customer/:id", updateCustomer);
-
+router.get("/customer/:id/summary", requireAuth, getCustomerSummary);
+router.get( "/customer/:id", requireAuth, getCustomerById);
+router.get("/customers", requireAuth, getCustomers);
+router.patch("/customer/:id", requireAuth, updateCustomer);
 module.exports = router;

@@ -82,7 +82,9 @@ async function verifyOtp(req, res) {
         }
 
         const normalizedPhone = normalizePhone(phone_number);
+
         const phoneHash = hashPhone(normalizedPhone);
+
         const otpDoc = await Otp.findOne({
             phone_number_hash: phoneHash
         });
@@ -207,23 +209,17 @@ async function getCustomers(req, res) {
         });
 
     } catch (error) {
-
         console.error(error);
-
         return res.status(500).json({
             message: "Internal Server Error"
         });
-
     }
 }
 
 async function updateCustomer(req, res) {
-
     try {
-
         const { id } = req.params;
         const { full_name } = req.body;
-
         const customer = await Customer.findByIdAndUpdate(
             id,
             { full_name },
@@ -232,57 +228,43 @@ async function updateCustomer(req, res) {
                 runValidators: true
             }
         );
-
         if (!customer) {
             return res.status(404).json({
                 message: "Customer not found"
             });
         }
-
         return res.status(200).json({
             customer: toCustomerResponse(customer)
         });
-
     } catch (error) {
-
         console.error(error);
-
         return res.status(500).json({
             message: "Internal Server Error"
         });
-
     }
-
 }
-async function getCustomerSummary(req, res) {
 
+async function getCustomerSummary(req, res) {
     try {
         const { id } = req.params;
-
         const customer = await Customer.findById(id);
-
         if (!customer) {
             return res.status(404).json({
                 message: "Customer not found"
             });
         }
-
         return res.status(200).json({
             ...toCustomerResponse(customer),
             bookings: []
         });
-
     } catch (error) {
-
         console.error(error);
-
         return res.status(500).json({
             message: "Internal Server Error"
         });
-
     }
-
 }
+
 module.exports = {
     sendOtp,
     verifyOtp,
