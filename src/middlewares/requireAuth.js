@@ -3,7 +3,10 @@ const { verifyAccessToken } = require("../utils/token");
 function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
 
+    console.log("Authorization Header:", authHeader);
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        console.log("Missing or invalid Authorization header");
         return res.status(401).json({
             message: "Unauthorized"
         });
@@ -14,6 +17,8 @@ function requireAuth(req, res, next) {
     try {
         const payload = verifyAccessToken(token);
 
+        console.log("JWT Payload:", payload);
+
         req.user = {
             id: payload.sub,
             role: payload.role,
@@ -21,6 +26,8 @@ function requireAuth(req, res, next) {
 
         next();
     } catch (error) {
+        console.log("JWT Error:", error.message);
+
         return res.status(401).json({
             message: "Unauthorized"
         });

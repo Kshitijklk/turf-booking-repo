@@ -175,6 +175,13 @@ async function loginOwner(req, res) {
     }
     }
 
+async function getOwnerProfile(req, res) {
+    return res.status(200).json({
+        message: "Owner authenticated",
+        user: req.user
+    });
+    }
+
 function toOwnerResponse(owner) {
     return {
         id: owner._id,
@@ -188,7 +195,9 @@ function toOwnerResponse(owner) {
     };
     }
 
+    
 module.exports = {
     registerOwner,
-    loginOwner
+    loginOwner,
+    getOwnerProfile
     };

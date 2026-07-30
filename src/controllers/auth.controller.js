@@ -80,11 +80,8 @@ async function verifyOtp(req, res) {
                 message: "Country code, phone number and OTP are required."
             });
         }
-
         const normalizedPhone = normalizePhone(phone_number);
-
         const phoneHash = hashPhone(normalizedPhone);
-
         const otpDoc = await Otp.findOne({
             phone_number_hash: phoneHash
         });
@@ -155,6 +152,99 @@ async function verifyOtp(req, res) {
         });
     } catch (error) {
         console.error(error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
+async function refreshToken(req, res) {
+    try {
+        const { refresh_token } = req.body;
+
+        if (!refresh_token) {
+            return res.status(400).json({
+                message: "Refresh token is required"
+            });
+        }
+
+        const tokenHash = hashRefreshToken(refresh_token);
+
+        const storedToken = await RefreshToken.findOne({
+            token_hash: tokenHash
+        });
+
+        if (!storedToken) {
+            return res.status(401).json({
+                message: "Invalid refresh token"
+            });
+        }
+
+        if (storedToken.expires_at <= new Date()) {
+            await RefreshToken.deleteOne({
+                _id: storedToken._id
+            });
+
+            return res.status(401).json({
+                message: "Refresh token expired"
+            });
+        }
+
+        const accessToken = signAccessToken({
+            id: storedToken.user_id,
+            role: storedToken.role
+        });
+
+        const newRefreshToken = generateRefreshToken();
+
+        await RefreshToken.deleteOne({
+            _id: storedToken._id
+        });
+
+        await RefreshToken.create({
+            user_id: storedToken.user_id,
+            role: storedToken.role,
+            token_hash: hashRefreshToken(newRefreshToken),
+            expires_at: new Date(
+                Date.now() + 30 * 24 * 60 * 60 * 1000
+            )
+        });
+
+        return res.status(200).json({
+            access_token: accessToken,
+            refresh_token: newRefreshToken
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
+async function logout(req, res) {
+    try {
+        const { refresh_token } = req.body;
+
+        if (!refresh_token) {
+            return res.status(400).json({
+                message: "Refresh token is required"
+            });
+        }
+
+        const tokenHash = hashRefreshToken(refresh_token);
+
+        await RefreshToken.deleteOne({
+            token_hash: tokenHash
+        });
+
+        return res.sendStatus(204);
+
+    } catch (error) {
+        console.error(error);
+
         return res.status(500).json({
             message: "Internal Server Error"
         });
@@ -268,6 +358,8 @@ async function getCustomerSummary(req, res) {
 module.exports = {
     sendOtp,
     verifyOtp,
+    refreshToken,
+    logout,
     getCustomerById,
     getCustomers,
     updateCustomer,
