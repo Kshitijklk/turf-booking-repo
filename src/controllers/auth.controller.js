@@ -131,6 +131,7 @@ async function verifyOtp(req, res) {
         const accessToken = signAccessToken({
             id: customer._id,
             role: "customer",
+            phone: customer.phone,
         });
 
         const refreshToken = generateRefreshToken();

@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
 
-function signAccessToken({ id, role }) {
+function signAccessToken({ id, role , phone}) {
     return jwt.sign(
         {
             sub: id.toString(),
-            role,
+            role
         },
         process.env.JWT_ACCESS_SECRET,
         {
