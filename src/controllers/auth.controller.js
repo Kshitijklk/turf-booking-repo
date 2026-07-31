@@ -176,6 +176,9 @@ async function refreshToken(req, res) {
         });
 
         if (!storedToken) {
+
+            console.error("⚠ Possible refresh token reuse detected!");
+
             return res.status(401).json({
                 message: "Invalid refresh token"
             });
