@@ -10,7 +10,7 @@ const token = jwt.sign(
     },
     process.env.JWT_ACCESS_SECRET,
     {
-        expiresIn: "30s"
+        expiresIn: "10s"
     }
 );
 
