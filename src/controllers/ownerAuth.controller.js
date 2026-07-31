@@ -114,7 +114,7 @@ async function loginOwner(req, res) {
 
         const owner = await BoxOwner.findOne({
             email_hash
-        }).select("+password_hash +email_hash +phone_hash");
+        }).select("+password_hash +email_hash +phone_hash +phone_encrypted");
 
         const DUMMY_HASH =
             "$2b$10$Q8dQh3R0m8sN9kqKQz4mP.Oe8XjT0F2Fy8s4p1N8L0yY8oJt5H3nC";
@@ -144,7 +144,7 @@ async function loginOwner(req, res) {
         }
         const accessToken = signAccessToken({
             id: owner._id,
-            role: "owner",
+            role: "owner"
         });
 
         const refreshToken = generateRefreshToken();
@@ -195,7 +195,7 @@ function toOwnerResponse(owner) {
     };
     }
 
-    
+
 module.exports = {
     registerOwner,
     loginOwner,
