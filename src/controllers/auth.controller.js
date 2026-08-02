@@ -57,7 +57,7 @@ async function sendOtp(req, res) {
         console.log("Connection DB:", Otp.db.name);
         return res.status(200).json({
             message: "OTP sent successfully.",
-            otp
+        
         });
     } catch (error) {
         console.error(error);
@@ -131,7 +131,6 @@ async function verifyOtp(req, res) {
         const accessToken = signAccessToken({
             id: customer._id,
             role: "customer",
-            phone: customer.phone,
         });
 
         const refreshToken = generateRefreshToken();
@@ -177,7 +176,7 @@ async function refreshToken(req, res) {
 
         if (!storedToken) {
 
-            console.error("⚠ Possible refresh token reuse detected!");
+            console.error(" Possible refresh token reuse detected!");
 
             return res.status(401).json({
                 message: "Invalid refresh token"
@@ -258,20 +257,32 @@ async function logout(req, res) {
 async function getCustomerById(req, res) {
     try {
         const { id } = req.params;
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "Invalid customer id."
             });
         }
+
+        
+        if (req.user.id !== id) {
+            return res.status(403).json({
+                message: "You are not allowed to access this customer."
+            });
+        }
+
         const customer = await Customer.findById(id);
+
         if (!customer) {
             return res.status(404).json({
                 message: "Customer not found."
             });
         }
+
         return res.status(200).json({
             customer: toCustomerResponse(customer)
         });
+
     } catch (error) {
         console.error(error);
 
@@ -314,6 +325,20 @@ async function updateCustomer(req, res) {
     try {
         const { id } = req.params;
         const { full_name } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid customer id."
+            });
+        }
+
+    
+        if (req.user.id !== id) {
+            return res.status(403).json({
+                message: "You are not allowed to update this customer."
+            });
+        }
+
         const customer = await Customer.findByIdAndUpdate(
             id,
             { full_name },
@@ -322,16 +347,20 @@ async function updateCustomer(req, res) {
                 runValidators: true
             }
         );
+
         if (!customer) {
             return res.status(404).json({
                 message: "Customer not found"
             });
         }
+
         return res.status(200).json({
             customer: toCustomerResponse(customer)
         });
+
     } catch (error) {
         console.error(error);
+
         return res.status(500).json({
             message: "Internal Server Error"
         });
@@ -341,24 +370,41 @@ async function updateCustomer(req, res) {
 async function getCustomerSummary(req, res) {
     try {
         const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid customer id."
+            });
+        }
+
+        // Customer can only access their own summary
+        if (req.user.id !== id) {
+            return res.status(403).json({
+                message: "You are not allowed to access this customer's summary."
+            });
+        }
+
         const customer = await Customer.findById(id);
+
         if (!customer) {
             return res.status(404).json({
                 message: "Customer not found"
             });
         }
+
         return res.status(200).json({
             ...toCustomerResponse(customer),
             bookings: []
         });
+
     } catch (error) {
         console.error(error);
+
         return res.status(500).json({
             message: "Internal Server Error"
         });
     }
 }
-
 module.exports = {
     sendOtp,
     verifyOtp,
