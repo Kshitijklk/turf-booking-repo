@@ -163,10 +163,109 @@ async function getVenues(req, res) {
         });
     }
 }
+// PATCH /venues/:id
+async function updateVenue(req, res) {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid venue id."
+            });
+        }
+
+        const venue = await Venue.findById(id);
+
+        if (!venue) {
+            return res.status(404).json({
+                message: "Venue not found."
+            });
+        }
+
+        // Owner can only update their own venue
+        if (venue.box_owner_id.toString() !== req.user.id) {
+            return res.status(403).json({
+                message: "You are not allowed to update this venue."
+            });
+        }
+
+        const allowedFields = [
+            "venue_name",
+            "about_venue",
+            "venue_timing",
+            "venue_sports",
+            "location",
+            "area",
+            "city",
+            "state",
+            "latitude",
+            "longitude",
+            "images"
+        ];
+
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                venue[field] = req.body[field];
+            }
+        }
+
+        await venue.save();
+
+        return res.status(200).json({
+            message: "Venue updated successfully.",
+            venue
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
+
+
+async function deleteVenue(req, res) {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid venue id."
+            });
+        }
+        const venue = await Venue.findById(id);
+        if (!venue) {
+            return res.status(404).json({
+                message: "Venue not found."
+            });
+        }
+
+        if (venue.box_owner_id.toString() !== req.user.id) {
+            return res.status(403).json({
+                message: "You are not allowed to delete this venue."
+            });
+        }
+        venue.status = "disabled";
+        await venue.save();
+        return res.status(200).json({
+            message: "Venue disabled successfully."
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+}
 
 
 module.exports = {
     createVenue,
     getVenueById,
-    getVenues
+    getVenues,
+    updateVenue,
+    deleteVenue
 };
