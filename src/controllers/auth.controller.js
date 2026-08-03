@@ -38,7 +38,7 @@ async function sendOtp(req, res) {
         const phoneHash = hashPhone(normalizedPhone);
         const otp = crypto.randomInt(100000, 1000000).toString();
         const otpHash = hashOtp(otp);
-        const result = await Otp.findOneAndUpdate(
+        await Otp.findOneAndUpdate(
             { phone_number_hash: phoneHash },
             {
                 phone_number_hash: phoneHash,
@@ -52,9 +52,6 @@ async function sendOtp(req, res) {
             }
         );
 
-        console.log("Saved OTP document:", result);
-        console.log("Collection:", result.collection.name);
-        console.log("Connection DB:", Otp.db.name);
         return res.status(200).json({
             message: "OTP sent successfully.",
         
@@ -264,7 +261,7 @@ async function getCustomerById(req, res) {
             });
         }
 
-        
+        // Ownership check
         if (req.user.id !== id) {
             return res.status(403).json({
                 message: "You are not allowed to access this customer."
@@ -291,7 +288,6 @@ async function getCustomerById(req, res) {
         });
     }
 }
-
 async function getCustomers(req, res) {
     try {
         const page = Number(req.query.page) || 1;
@@ -332,7 +328,7 @@ async function updateCustomer(req, res) {
             });
         }
 
-    
+        // Ownership check
         if (req.user.id !== id) {
             return res.status(403).json({
                 message: "You are not allowed to update this customer."
@@ -377,7 +373,7 @@ async function getCustomerSummary(req, res) {
             });
         }
 
-        // Customer can only access their own summary
+        
         if (req.user.id !== id) {
             return res.status(403).json({
                 message: "You are not allowed to access this customer's summary."
