@@ -25,9 +25,11 @@ function toCustomerResponse(customer) {
     };
 }
 
+
 async function sendOtp(req, res) {
     try {
         const { country_code, phone_number } = req.body;
+
         if (!country_code || !phone_number) {
             return res.status(400).json({
                 message: "Country code and phone number are required."
@@ -36,8 +38,14 @@ async function sendOtp(req, res) {
 
         const normalizedPhone = normalizePhone(phone_number);
         const phoneHash = hashPhone(normalizedPhone);
+
         const otp = crypto.randomInt(100000, 1000000).toString();
+
+        // TEMPORARY: only for local development/testing
+        console.log("DEV OTP:", otp);
+
         const otpHash = hashOtp(otp);
+
         await Otp.findOneAndUpdate(
             { phone_number_hash: phoneHash },
             {
@@ -53,16 +61,19 @@ async function sendOtp(req, res) {
         );
 
         return res.status(200).json({
-            message: "OTP sent successfully.",
-        
+            message: "OTP sent successfully."
         });
+
     } catch (error) {
         console.error(error);
+
         return res.status(500).json({
             message: "Internal Server Error"
         });
     }
 }
+
+
 
 async function verifyOtp(req, res) {
     try {

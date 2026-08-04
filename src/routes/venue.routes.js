@@ -9,12 +9,16 @@ const {
     getVenueById,
     getVenues,
     updateVenue,
-    deleteVenue
+    deleteVenue,
+    getNearbyVenues,
+    searchVenues
 } = require("../controllers/venue.controller");
 
 const router = express.Router();
 
 router.post( "/venues", requireAuth, requireRole("owner"), createVenue);
+router.get("/venues/nearby", getNearbyVenues);
+router.post("/venues/search", searchVenues);
 router.get("/venues/:id", getVenueById);
 router.get( "/venues", optionalAuth, getVenues);
 router.patch("/venues/:id", requireAuth, requireRole("owner"), updateVenue);
