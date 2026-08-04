@@ -10,4 +10,5 @@ all achieved
 
 part 1 check:
 Embedding boxes inside venues would make sense because boxes are limited in number and usually read with their venue. However, boxes need to be referenced individually by other collections such as bookings. Therefore, boxes need their own _id and are stored in a separate collection with venue_id referencing the parent venue.
+
 # E-O-D check
