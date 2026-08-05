@@ -2,17 +2,15 @@ require("dotenv").config();
 
 const express = require("express");
 const connectDB = require("./db");
-const boxRoutes = require("./routes/box.routes");
 
 const authRoutes = require("./routes/auth.routes");
 const sportRoutes = require("./routes/sport.routes");
 const ownerAuthRoutes = require("./routes/ownerAuth.routes");
 const venueRoutes = require("./routes/venue.routes");
+const boxRoutes = require("./routes/box.routes");
 
 const app = express();
 
-
-app.use("/venues/:venueId/boxes", boxRoutes);
 app.use(express.json());
 
 app.get("/health", (req, res) => {
@@ -22,9 +20,7 @@ app.get("/health", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/sports", sportRoutes);
 app.use("/owner", ownerAuthRoutes);
-
 app.use("/venues/:venueId/boxes", boxRoutes);
-
 app.use("/", venueRoutes);
 
 async function start() {
